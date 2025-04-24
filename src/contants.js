@@ -1,4 +1,4 @@
-const DB_NAME = "videotube"
+const DB_NAME = "mydatabase"; // Replace with your actual database name
 
 
 
