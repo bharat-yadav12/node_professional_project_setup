@@ -5,6 +5,7 @@ import { app } from './app.js';
 import { asyncHandler } from './utils/asyncHandler.js';
 import userRoutes from './routes/user.route.js';
 import bookRoutes from './routes/book.route.js';
+import { authorRouter } from './routes/author.route.js';
 
 dbConnection()
 .then(()=>{
@@ -21,6 +22,7 @@ dbConnection()
 
 app.use('/api/users', userRoutes);
 app.use('/api/books', bookRoutes);
+app.use('/api/authors', authorRouter);
 // Error Handler
 app.use((err, req, res, next) => {
     res.status(500).json({ error: err.message });
