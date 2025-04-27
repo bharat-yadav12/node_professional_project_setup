@@ -9,10 +9,22 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true
 }))
+
+
 app.use(express.json({limit: "16kb"}))
 app.use(express.urlencoded({extended:true,limit:"16kb"}))
 app.use(express.static("public"));
-app.use(cookieParser())
+app.use(cookieParser());
+
+// custom middleware writing :-
+
+
+// const logger = (req, res, next) => {
+//     console.log(`${req.method} ${req.url}`);
+//     next();
+//   };
+  
+//   app.use(logger);
 
 
 

@@ -7,6 +7,8 @@ import userRoutes from './routes/user.route.js';
 import bookRoutes from './routes/book.route.js';
 import { authorRouter } from './routes/author.route.js';
 import { productRouter } from './routes/product.route.js';
+import mongoose from 'mongoose';
+
 
 
 dbConnection()
