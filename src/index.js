@@ -6,6 +6,8 @@ import { asyncHandler } from './utils/asyncHandler.js';
 import userRoutes from './routes/user.route.js';
 import bookRoutes from './routes/book.route.js';
 import { authorRouter } from './routes/author.route.js';
+import { productRouter } from './routes/product.route.js';
+
 
 dbConnection()
 .then(()=>{
@@ -23,6 +25,7 @@ dbConnection()
 app.use('/api/users', userRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/authors', authorRouter);
+app.use('/api/products',productRouter);
 // Error Handler
 app.use((err, req, res, next) => {
     res.status(500).json({ error: err.message });
@@ -31,7 +34,6 @@ app.use((err, req, res, next) => {
 app.get("/",(req,res)=>{
     res.send("<h1>hello world</h1>")
 })
-
 const fetchRandomUser = async () => {
     console.log("now fetchRandomUser is called")
     const shouldFail = Math.random() < 0.5; // 50% chance of failure

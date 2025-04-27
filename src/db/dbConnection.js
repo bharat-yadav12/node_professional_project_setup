@@ -5,7 +5,12 @@ const  dbConnection = async () => {
     //console.log("dbconnection is called:",process.env.MONGODB_URI,DB_NAME);
     
     try {
-        const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/${ DB_NAME}`)
+        const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/${ DB_NAME}`,{
+            //useNewUrlParser: true,
+            //useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000,
+            family: 4, // 👈 Add this
+          })
         if(connectionInstance){
             console.log("database connected successfully and host is " ,connectionInstance.connection.host)
         }
