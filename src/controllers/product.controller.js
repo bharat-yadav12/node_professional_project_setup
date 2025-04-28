@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 import { Product } from "../models/Product.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const createProduct = asyncHandler(async (req,res,next) => {
     const product = await Product.create(req.body);
-    res.status(201).json(product);
+    const response = new ApiResponse(201,product,"product created successfully!")
+    res.status(response.statusCode).json(response);
 })
 // using asynchandler wrapper function 
 
@@ -32,7 +33,8 @@ const createProduct = asyncHandler(async (req,res,next) => {
 
 const getProduct = async (req, res, next) => {
     const products = await Product.find();
-    res.status(200).json(products);
+    const response = new ApiResponse(200,products,"product fetched successfully!")
+    res.status(response.statusCode).json(response);
 };
 
 const getProducts = (req, res, next) => {

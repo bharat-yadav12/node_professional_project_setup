@@ -7,9 +7,6 @@ import userRoutes from './routes/user.route.js';
 import bookRoutes from './routes/book.route.js';
 import { authorRouter } from './routes/author.route.js';
 import { productRouter } from './routes/product.route.js';
-import mongoose from 'mongoose';
-
-
 
 dbConnection()
 .then(()=>{
@@ -142,3 +139,15 @@ app.get('/api/users/:id/:name', (req, res, next) => {
     const user = { id: userId, name: userName };
     res.json(user);
 });
+const myLogger = function (req, res, next) {
+    console.log('LOGGED')
+    next()
+  }
+  
+  app.use(myLogger)
+
+app.get("/about", (req, res) => {
+    res.send("<h1>hello world</h1>")
+}
+)
+app.use(myLogger)
