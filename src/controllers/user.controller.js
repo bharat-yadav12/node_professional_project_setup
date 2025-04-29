@@ -20,9 +20,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 // Create User
 export const createUser = asyncHandler(async (req, res) => {
-    const { name, email, age } = req.body;
-    const user = await User.create({ name, email, age });
-    res.status(201).json(user);
+    const { name, email, age,password } = req.body;
+    const user = await User.create({ name, email, age,password });
+    const { password: _, ...userWithoutPassword } = user.toObject();
+    res.status(201).json(userWithoutPassword);
   });
   
   // Read All Users
