@@ -17,7 +17,8 @@ export const registerUser = asyncHandler(async (req, res) => {
      // check for user creation
      // return res
     const { username, email, fullName,password } = req.body;
-    console.log("req.body", username,email,fullName,password)
+    // console.log("req.body", req.body)
+    // console.log("req.body", username,email,fullName,password)
 
     // if([username,email,fullName,password].some((field)=> field?.trim() === "")){
     //     throw new ApiError(400,"All fields are required")
@@ -37,12 +38,12 @@ export const registerUser = asyncHandler(async (req, res) => {
             { email }
         ]
     })
-    console.log("existingUser", existingUser)
+    // console.log("existingUser", existingUser)
 
     if (existingUser) {
       throw new ApiError(409, "User with email or username already exists")
   }
-   console.log("req.files", req.files)
+  // console.log("req.files", req.files)
     const avatarLocalPath = req.files?.avatar[0]?.path;
     const coverImageLocalPath = req.files?.coverImage[0]?.path;
 

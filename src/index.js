@@ -27,7 +27,7 @@ app.use('/api/authors', authorRouter);
 app.use('/api/products',productRouter);
 // Error Handler
 app.use((err, req, res, next) => {
-    console.log(err)
+    //console.log(err)
     res.status(err.statusCode).json({...err, message: err.message, stack: err.stack, status: err.status});
 
   });
