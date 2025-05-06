@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { createUser,getAllUsers,getUserById,updateUser,deleteUser,registerUser,loginUser,logoutUser,tempController } from '../controllers/user.controller.js';
+import { createUser,getAllUsers,getUserById,updateUser,deleteUser,registerUser,loginUser,logoutUser,tempController ,refreshAccessToken} from '../controllers/user.controller.js';
 import { upload } from '../middlewares/multer.middleware.js';
 import { addTempvar } from '../middlewares/temp.middleware.js';
 import {verifyJWT} from '../middlewares/auth.middleware.js';
@@ -26,6 +26,7 @@ router.route('/register').post(upload.fields(
 
 router.route('/login').post(loginUser)
 router.route('/logout').post(verifyJWT,logoutUser);
+router.route('/refresh-token').post(refreshAccessToken);
 // an example of using a custome middleware to add a temporary variable to the request object
 router.route('/temp').get(addTempvar,tempController)
 

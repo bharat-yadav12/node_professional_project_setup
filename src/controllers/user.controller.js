@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import fs from "fs";
 import path from "path";
+import jwt from "jsonwebtoken"
 
 // actual code according to hitesh video tutorial
 
@@ -149,7 +150,7 @@ export const loginUser = asyncHandler(async(req, res)=>{
     secure: true
   }
   console.log('loggedInUser is ',loggedInUser);
-  res.status(200).cookie("accessToken",accessToken,options).cookie("refreshToken",refreshToken,options).json(new ApiResponse(200,loggedInUser,"User logged in successfully"))
+  res.status(200).cookie("accessToken",accessToken,options).cookie("refreshToken",refreshToken,options).json(new ApiResponse(200,{user:loggedInUser,accessToken,refreshToken},"User logged in successfully"))
 });
 export const logoutUser = asyncHandler(async(req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
@@ -176,6 +177,80 @@ export const logoutUser = asyncHandler(async(req, res) => {
   .clearCookie("refreshToken", options)
   .json(new ApiResponse(200, {}, "User logged Out"))
 })
+
+// refresh access token 
+
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+  const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+
+  if (!incomingRefreshToken) {
+      throw new ApiError(401, "unauthorized request")
+  }
+
+  try {
+      const decodedToken = jwt.verify(
+          incomingRefreshToken,
+          process.env.REFRESH_TOKEN_SECRET
+      )
+  
+      const user = await User.findById(decodedToken?._id)
+  
+      if (!user) {
+          throw new ApiError(401, "Invalid refresh token")
+      }
+  
+      if (incomingRefreshToken !== user?.refreshToken) {
+          throw new ApiError(401, "Refresh token is expired or used")
+          
+      }
+  
+      const options = {
+          httpOnly: true,
+          secure: true
+      }
+  
+      const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
+  
+      return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(
+          new ApiResponse(
+              200, 
+              {accessToken,refreshToken},
+              "Access token refreshed"
+          )
+      )
+  } catch (error) {
+      throw new ApiError(401, error?.message || "Invalid refresh token")
+  }
+
+})
+
+
+// export const refreshAccessToken = asyncHandler(async (req, res, next) => {
+//   console.log("refreshAccessToken is called");
+  
+//   const token =
+//     req?.cookies?.refreshToken ||
+//     req?.header("Authorization")?.replace("Bearer ", "");
+//     console.log("token is ", token)
+//   const decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+//  console.log("decodedToken is ", decodedToken)
+//   if (!decodedToken) {
+//     throw new ApiError(404, "unauthorised accessd denied");
+//   }
+
+//   const user = await User.findById(decodedToken._id).select("-password -refreshToken")
+//   const accessToken = user.generateAccessToken();
+//   const option = {
+//     httpOnly:true,
+//     secure:true
+//   }
+
+//   res.cookie("accessToken",accessToken,option).cookie("refreshToken",token).json(new ApiResponse(200,{data:user,accessToken}))
+// });
 
 // generate logoutuser controller
 
