@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import path from "path";
 
 
 cloudinary.config({
@@ -17,11 +18,18 @@ const uploadOnCloudinary = async (localFilePath) => {
         });
         // file has been uploaded successfull
         // console.log("file is uploaded on cloudinary ", response.url);
-        fs.unlinkSync(localFilePath)
+        //fs.unlinkSync(localFilePath)
+        // onw window backword slash path gives issue so use path module
+        //path: 'public\\temp\\bharat.jpg',
+        const normalizedPath = path.resolve(localFilePath);
+        console.log("normalizedPath is ",normalizedPath)
+        fs.unlinkSync(normalizedPath);
         return response;
 
     } catch (error) {
-        fs.unlinkSync(localFilePath) // remove the locally saved temporary file as the upload operation got failed
+        //fs.unlinkSync(localFilePath) // remove the locally saved temporary file as the upload operation got failed
+        const normalizedPath = path.resolve(localFilePath);
+        fs.unlinkSync(normalizedPath);
         return null;
     }
 };

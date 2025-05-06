@@ -3,7 +3,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import bcrypt from "bcrypt"
+import fs from "fs";
+import path from "path";
 
 // actual code according to hitesh video tutorial
 
@@ -18,7 +19,7 @@ export const registerUser = asyncHandler(async (req, res) => {
      // check for user creation
      // return res
     const { username, email, fullName,password } = req.body;
-    // console.log("req.body", req.body)
+     //console.log("req.body", req.body)
     // console.log("req.body", username,email,fullName,password)
 
     // if([username,email,fullName,password].some((field)=> field?.trim() === "")){
@@ -41,19 +42,29 @@ export const registerUser = asyncHandler(async (req, res) => {
     })
     // console.log("existingUser", existingUser)
 
-    if (existingUser) {
-      throw new ApiError(409, "User with email or username already exists")
-  }
-  // console.log("req.files", req.files)
+   
+   //console.log("req.files", req.files)
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    //const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path
+    }
 
     if(!avatarLocalPath){
         throw new ApiError(400, "Avatar is required")
     }
 
+    if (existingUser) {
+      const normalizedPath = path.resolve(avatarLocalPath);
+     fs.unlinkSync(normalizedPath);
+      throw new ApiError(409, "User with email or username already exists")
+  }
+
     const avatar = await uploadOnCloudinary(avatarLocalPath);
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+    //console.log("avatar cloudinary response ",avatar);
 
     if(!avatar){
         throw new ApiError(400, "Avatar is required")
@@ -72,7 +83,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     if(!createdUser){
         throw new ApiError(500, "Something went wrong while registering the user")
     }
-    res.status(201).json(new ApiResponse(201, "User created successfully", createdUser));
+    res.status(201).json(new ApiResponse(201, createdUser,"User created successfully"));
 });
 
 const resetPassword = async () => {

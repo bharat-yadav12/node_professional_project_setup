@@ -21,10 +21,10 @@ dbConnection()
     console.log("mongo db connection failed",err)
 })
 
-app.use('/api/users', userRoutes);
-app.use('/api/books', bookRoutes);
-app.use('/api/authors', authorRouter);
-app.use('/api/products',productRouter);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/books', bookRoutes);
+app.use('/api/v1/authors', authorRouter);
+app.use('/api/v1/products',productRouter);
 // Error Handler
 app.use((err, req, res, next) => {
     //console.log(err)
