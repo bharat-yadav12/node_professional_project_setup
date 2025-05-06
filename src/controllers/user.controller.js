@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import bcrypt from "bcrypt"
 
 // actual code according to hitesh video tutorial
 
@@ -74,6 +75,119 @@ export const registerUser = asyncHandler(async (req, res) => {
     res.status(201).json(new ApiResponse(201, "User created successfully", createdUser));
 });
 
+const resetPassword = async () => {
+  const newPassword = 'password'; // Set your new test password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await User.findOneAndUpdate(
+    { email: 'bharat.yadav12345@gmail.com' },
+    { password: hashedPassword }
+  );
+
+  console.log('Password reset successful');
+};
+
+const generateAccessAndRefereshTokens = async(userId) =>{
+  try {
+      const user = await User.findById(userId)
+      const accessToken = user.generateAccessToken()
+      const refreshToken = user.generateRefreshToken()
+
+      user.refreshToken = refreshToken
+      await user.save({ validateBeforeSave: false })
+
+      return {accessToken, refreshToken}
+
+
+  } catch (error) {
+      throw new ApiError(500, "Something went wrong while generating referesh and access token")
+  }
+}
+
+
+
+export const loginUser = asyncHandler(async(req, res)=>{
+  // get data from user (username,email) and password
+  // find user from db basedon username or email
+  // if userFound then mathc it's password
+  const {username,email,password} = req.body;
+
+  if(!username && !email){
+    throw new ApiError(400,"username or email is required")
+  }
+
+  const user = await User.findOne({
+    $or:[{username},{email}]
+  })
+  console.log('founded user is ',user);
+  //await resetPassword(); // Call the password reset function
+
+  if(!user){
+    throw new ApiError(404,"user not found!");
+  }
+  const isPasswordCorrect = await user.isPasswordCorrect(password);
+  if(!isPasswordCorrect){
+    throw new ApiError(401,"password is incorrect!");
+  }
+  const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
+  console.log('accessToken is ',accessToken);
+  console.log('refreshToken is ',refreshToken);
+  const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+  const options = {
+    httpOnly: true,
+    secure: true
+  }
+  console.log('loggedInUser is ',loggedInUser);
+  res.status(200).cookie("accessToken",accessToken,options).cookie("refreshToken",refreshToken,options).json(new ApiResponse(200,loggedInUser,"User logged in successfully"))
+});
+export const logoutUser = asyncHandler(async(req, res) => {
+  const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+          $set: {
+              refreshToken: ""// previously not worked when using undefined
+          }
+      },
+      {
+          new: true
+      }
+  )
+  console.log(" updatedUser is ", updatedUser)
+
+  const options = {
+      httpOnly: true,
+      secure: true
+  }
+
+  return res
+  .status(200)
+  .clearCookie("accessToken", options)
+  .clearCookie("refreshToken", options)
+  .json(new ApiResponse(200, {}, "User logged Out"))
+})
+
+// generate logoutuser controller
+
+// export const logoutUser = asyncHandler(async(req, res)=>{
+//   // get refresh token from cookie
+//   // find user from db based on refresh token
+//   // if user found then remove refresh token from db and send success response
+//   // if user not found then send error response
+
+//   const {refreshToken} = req.cookies;
+//   if(!refreshToken){
+//     throw new ApiError(400,"Refresh token is required")
+//   }
+//   const user = await User.findOne({refreshToken});
+//   if(!user){
+//     throw new ApiError(404,"User not found")
+//   }
+//   await User.findByIdAndUpdate(user._id,{refreshToken:""})
+//   res.clearCookie("accessToken").clearCookie("refreshToken").status(200).json(new ApiResponse(200,"User logged out successfully"))
+// }
+// );
+
+
 
 
 // const asyncHandler = (requestHandler) => {
@@ -126,6 +240,11 @@ export const createUser = asyncHandler(async (req, res) => {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
     res.status(200).json({ message: "User deleted successfully" });
+  });
+
+  export const tempController = asyncHandler(async (req, res) => {
+    console.log("chekcing the valueof the req.temp set by addtemp middleware",req.temp)
+    res.status(200).json({ message: "temp controller is working" });
   });
 
 
