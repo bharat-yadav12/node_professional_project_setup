@@ -1,5 +1,5 @@
 const asyncHandler = (requestHandler) => {
-    console.log("async handler is called with requestHandler", requestHandler)
+   // console.log("async handler is called with requestHandler", requestHandler)
     return (req, res, next) => {
         console.log("async handler is returnrned called with req,res,next", req.url)
         Promise.resolve(requestHandler(req, res, next)).catch((err) => next(err))

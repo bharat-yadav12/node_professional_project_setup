@@ -142,9 +142,9 @@ app.get('/api/users/:id/:name', (req, res, next) => {
     res.json(user);
 });
 const myLogger = function (req, res, next) {
-    console.log('LOGGED')
+    //console.log('LOGGED')
     next()
-  }
+}
   
   app.use(myLogger)
 
