@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { Subscription } from "../models/subscription.model.js";
 import fs from "fs";
 import path from "path";
 import jwt from "jsonwebtoken"
@@ -336,7 +337,6 @@ export const updateUserAvatar = asyncHandler(async(req, res) => {
 
   if (!avatar.url) {
       throw new ApiError(400, "Error while uploading on avatar")
-      
   }
 
   const user = await User.findByIdAndUpdate(
@@ -389,6 +389,109 @@ export const updateUserCoverImage = asyncHandler(async(req, res) => {
       new ApiResponse(200, user, "Cover image updated successfully")
   )
 })
+
+export const getUserChannelProfile = asyncHandler(async(req, res) => {
+  const {username} = req.params
+
+  if (!username?.trim()) {
+      throw new ApiError(400, "username is missing")
+  }
+
+  const channel = await User.aggregate([
+      {
+          $match: {
+              username: username?.toLowerCase()
+          }
+      },
+      {
+          $lookup: {
+              from: "subscriptions",
+              localField: "_id",
+              foreignField: "channel",
+              as: "subscribers"
+          }
+      },
+      {
+          $lookup: {
+              from: "subscriptions",
+              localField: "_id",
+              foreignField: "subscriber",
+              as: "subscribedTo"
+          }
+      },
+      {
+          $addFields: {
+              subscribersCount: {
+                  $size: "$subscribers"
+              },
+              channelsSubscribedToCount: {
+                  $size: "$subscribedTo"
+              },
+              isSubscribed: {
+                  $cond: {
+                      if: {$in: [req.user?._id, "$subscribers.subscriber"]},
+                      then: true,
+                      else: false
+                  }
+              }
+          }
+      },
+      {
+          $project: {
+              fullName: 1,
+              username: 1,
+              subscribersCount: 1,
+              channelsSubscribedToCount: 1,
+              isSubscribed: 1,
+              avatar: 1,
+              coverImage: 1,
+              email: 1
+
+          }
+      }
+  ])
+
+  if (!channel?.length) {
+      throw new ApiError(404, "channel does not exists")
+  }
+
+  return res
+  .status(200)
+  .json(
+      new ApiResponse(200, channel[0], "User channel fetched successfully")
+  )
+})
+
+// without pipline :-
+const getUserChannelProfileWithoutPipline = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+  if (!username.trim()) {
+    throw new ApiError(400, 'username is not provided');
+  }
+
+  const user = await User.findOne({ username }).select("-password -refreshToken");
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const allSubscribers = await Subscription.find({ channel: user._id });
+  const subscribersCount = await Subscription.countDocuments({ channel: user._id });
+  const subscribeToCount = await Subscription.countDocuments({ subscriber: user._id });
+
+  const isSubscribed = allSubscribers.some(
+    (sub) => sub.subscriber.toString() === req.user_id
+  );
+
+  res.status(200).json(
+    new ApiResponse(200, {
+      user,
+      subscribersCount,
+      subscribeToCount,
+      isSubscribed
+    })
+  );
+});
+
 
 
 
@@ -466,7 +569,7 @@ export const createUser = asyncHandler(async (req, res) => {
   
   // Read All Users
   export const getAllUsers = asyncHandler(async (req, res) => {
-    const users = await User.find({});
+    const users = await User.find({}).select("-password -refreshToken");
     res.status(200).json(users);
   });
   
