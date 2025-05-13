@@ -20,6 +20,7 @@ export const registerUser = asyncHandler(async (req, res) => {
      // remove password and refresh token field from response
      // check for user creation
      // return res
+     console.log('registe route')
     const { username, email, fullName,password } = req.body;
      //console.log("req.body", req.body)
     // console.log("req.body", username,email,fullName,password)
@@ -46,7 +47,10 @@ export const registerUser = asyncHandler(async (req, res) => {
 
    
    //console.log("req.files", req.files)
+   console.log(req.files)
+   console.log(req.files?.avatar[0]?.path)
     const avatarLocalPath = req.files?.avatar[0]?.path;
+    console.log(req.files?.avatar[0]?.path)
     //const coverImageLocalPath = req.files?.coverImage[0]?.path;
     let coverImageLocalPath;
     if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {

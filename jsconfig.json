@@ -1,9 +1,17 @@
-// {
-//     "compilerOptions": {
-//       "target": "es6",
-//       "module": "commonjs",
-//       "checkJs": true
-//     },
-//     "include": ["./"]
-//   }
-  
+{
+    "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "checkJs": true
+    },
+    "include": ["./"]
+  }
+  // first user id password:-
+//  {
+//   "email":"bharat.yadav12345@gmail.com",
+//   "password":"password"
+// }
+
+// second user id password
+//"email": "krishna.yadav1234@gmail.com",
+//12345
