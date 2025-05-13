@@ -1,11 +1,11 @@
-{
-    "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "checkJs": true
-    },
-    "include": ["./"]
-  }
+// {
+//     "compilerOptions": {
+//       "target": "es6",
+//       "module": "commonjs",
+//       "checkJs": true
+//     },
+//     "include": ["./"]
+//   }
   // first user id password:-
 //  {
 //   "email":"bharat.yadav12345@gmail.com",

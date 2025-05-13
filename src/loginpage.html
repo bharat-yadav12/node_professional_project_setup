@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login & Logout Demo</title>
+</head>
+<body>
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="email" name="email" placeholder="Email" required value="bharat.yadav12345@gmail.com" />
+    <br />
+    <input type="password" name="password" placeholder="Password" required value="yourPassword" />
+    <br />
+    <button type="submit">Login</button>
+  </form>
+
+  <h2>Logout</h2>
+  <button id="logoutBtn">Logout</button>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(loginForm);
+      const email = formData.get("email");
+      const password = formData.get("password");
+
+      const res = await fetch("http://localhost:3000/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include", // VERY IMPORTANT to store/reuse cookies
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      console.log("Login response:", data);
+      alert(data.message || "Login done");
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      const res = await fetch("http://localhost:3000/api/users/logout", {
+        method: "POST",
+        credentials: "include", // Include cookies when logging out
+      });
+
+      const data = await res.json();
+      console.log("Logout response:", data);
+      alert(data.message || "Logged out");
+    });
+  </script>
+</body>
+</html>

@@ -83,6 +83,9 @@ const updateTweet = asyncHandler(async (req, res) => {
     tweet.content = content;
     await tweet.save();
 
+
+
+
     //const userUpdatedTweet = await Tweet.findByIdAndUpdate(tweetId,{content}, {new:true})
     res.status(200).json(new ApiResponse(200,tweet))
 })
@@ -105,7 +108,7 @@ const deleteTweet = asyncHandler(async (req, res) => {
         throw new ApiError(404,"no tweet exist with this id")
     }
 
-    if(tweet.owner.toString() !== user._id.toString()){
+    if(tweet.owner.toString() !== req.user._id.toString()){
         throw new ApiError(400,"user is not authenticate to do the request")
     }
 
@@ -114,6 +117,9 @@ const deleteTweet = asyncHandler(async (req, res) => {
 
     res.status(200).json(new ApiResponse(400,{},"the tweet deleted succssfully:"))
 })
+// write a controller to get all tweets of a user
+
+
 
 export {
     createTweet,
